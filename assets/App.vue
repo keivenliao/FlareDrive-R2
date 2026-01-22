@@ -15,7 +15,7 @@
           fill="#e6e6e6" p-id="24281"></path>
       </svg>
     </button>
-    <div class="app-bar">
+    <!-- <div class="app-bar">
       <a class="app-title-container" style="display: flex; align-items: center;" href="/">
         <img src="/assets/homescreen.png" alt="FlareDrive" style="height: 24px" />
         <h1 class="app-title" style="font-size: 20px;margin: 0 25px 0 8px; user-select: none;">FlareDrive</h1>
@@ -44,7 +44,7 @@
           :items="[{ text: '按照名称排序A-Z' }, { text: '按照大小递增排序' }, { text: '按照大小递减排序' }, { text: '粘贴文件到网盘' }]"
           @click="onMenuClick" />
       </div>
-    </div>
+    </div> -->
     <div class="file-list-container">
       <ul class="file-list">
         <li v-if="cwd !== ''">
