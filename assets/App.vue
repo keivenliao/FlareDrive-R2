@@ -210,12 +210,15 @@ export default {
     showUploadPopup: false,
     uploadProgress: null,
     uploadQueue: [],
-    backgroundImageUrl: "/assets/bg-light.webp"
+    //backgroundImageUrl: "/assets/bg-light.webp"
+    backgroundImageUrl: "/assets/light_background-wallpaper.jpg"
   }),
 
   computed: {
     filteredFiles() {
       let files = this.files;
+      // 过滤掉文件大小为0的文件
+      files = files.filter((file) => file.size > 0);
       if (this.search) {
         files = files.filter((file) =>
           file.key.split("/").pop().includes(this.search)
