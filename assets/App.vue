@@ -41,7 +41,7 @@
           </svg>
         </button>
         <Menu v-model="showMenu"
-          :items="[{ text: '按照名称排序A-Z' }, { text: '按照大小递增排序' }, { text: '按照大小递减排序' }, { text: '粘贴文件到网盘' }]"
+          :items="[{ text: '按照名称排序A-Z' }, { text: '按照大小递增排序' }, { text: '按照大小递减排序' }, { text: '按照时间最新排序' }, { text: '按照时间最早排序' }, { text: '粘贴文件到网盘' }]"
           @click="onMenuClick" />
       </div>
     </div>
@@ -275,13 +275,7 @@ export default {
         .then((res) => res.json())
         .then((files) => {
           this.files = files.value;
-          if (this.order) {
-            this.files.sort((a, b) => {
-              if (this.order === "size") {
-                return b.size - a.size;
-              }
-            });
-          }
+          this.applySort();
           this.folders = files.folders;
           this.loading = false;
         });
@@ -307,6 +301,22 @@ export default {
       this.uploadFiles(files);
     },
 
+    applySort() {
+      this.files.sort((a, b) => {
+        if (this.order === "大小↑") {
+          return a.size - b.size;
+        } else if (this.order === "大小↓") {
+          return b.size - a.size;
+        } else if (this.order === "时间↓") {
+          return new Date(b.uploaded) - new Date(a.uploaded);
+        } else if (this.order === "时间↑") {
+          return new Date(a.uploaded) - new Date(b.uploaded);
+        } else {
+          return a.key.localeCompare(b.key);
+        }
+      });
+    },
+
     onMenuClick(text) {
       switch (text) {
         case "按照名称排序A-Z":
@@ -318,18 +328,16 @@ export default {
         case "按照大小递减排序":
           this.order = "大小↓";
           break;
+        case "按照时间最新排序":
+          this.order = "时间↓";
+          break;
+        case "按照时间最早排序":
+          this.order = "时间↑";
+          break;
         case "粘贴文件到网盘":
           return this.pasteFile();
       }
-      this.files.sort((a, b) => {
-        if (this.order === "大小↑") {
-          return a.size - b.size;
-        } else if (this.order === "大小↓") {
-          return b.size - a.size;
-        } else {
-          return a.key.localeCompare(b.key);
-        }
-      });
+      this.applySort();
     },
 
     onUploadClicked(fileElement) {
