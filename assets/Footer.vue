@@ -21,7 +21,9 @@
     <div class="powered">Powered by <a href="https://workers.cloudflare.com/" target="_blank"
         rel="noopener noreferrer">Cloudflare Workers</a></div>
 
-    <div style="margin:10px 0;">© 2025 FlareDrive. All rights reserved.</div>
+    <div style="margin:10px 0;">
+    © 2025 <a href="https://github.com/longern/FlareDrive" target="_blank" style="text-decoration:none; color:inherit; font-weight:bold;">FlareDrive</a>. All rights reserved. MOD by <a href="https://github.com/willow-god/FlareDrive-R2" target="_blank" style="text-decoration:none; color:inherit; font-weight:bold;">FlareDrive-R2</a>
+    </div>
   </footer>
 </template>
 
