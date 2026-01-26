@@ -36,6 +36,12 @@ export default {
       githubUrl: "https://github.com/CynixPub",
       emailUrl: "admin@cynix.cc"
     };
+  },
+  mounted() {
+    const script = document.createElement("script");
+    script.src = "https://events.vercount.one/js";
+    script.async = true;
+    document.head.appendChild(script);
   }
 };
 </script>
