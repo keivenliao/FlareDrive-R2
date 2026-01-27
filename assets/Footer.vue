@@ -34,7 +34,7 @@ export default {
     return {
       homeUrl: "https://cynix.cc/",
       githubUrl: "https://github.com/CynixPub",
-      emailUrl: "admin@cynix.cc"
+      emailUrl: "mailto:admin@cynix.cc"
     };
   },
   mounted() {
