@@ -247,6 +247,8 @@ export default {
       if (this.isAdmin) {
         items.push({ text: '粘贴文件到网盘' });
       }
+      items.push({ divider: true });
+      items.push({ text: this.isAdmin ? '退出登录' : '管理员登录' });
       return items;
     },
   },
@@ -363,8 +365,53 @@ export default {
           break;
         case "粘贴文件到网盘":
           return this.pasteFile();
+        case "管理员登录":
+          return this.login();
+        case "退出登录":
+          return this.logout();
       }
       this.applySort();
+    },
+
+    async login() {
+      try {
+        // 发送一个带有错误凭据的请求来触发浏览器的登录对话框
+        const response = await fetch('/api/write/test/', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        if (response.status === 401) {
+          // 使用 XMLHttpRequest 来触发浏览器原生的登录对话框
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/api/write/test/', true);
+          xhr.withCredentials = true;
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+              this.checkAdminStatus();
+            }
+          };
+          xhr.send();
+        } else {
+          this.checkAdminStatus();
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    },
+
+    logout() {
+      // Basic Auth 无法真正退出，只能通过发送错误凭据来清除
+      // 这里通过创建一个带有无效凭据的请求来尝试清除缓存的凭据
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/api/write/test/', true);
+      xhr.setRequestHeader('Authorization', 'Basic ' + btoa('logout:logout'));
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          this.isAdmin = false;
+          alert('已退出登录，如需完全退出请关闭浏览器或清除浏览器缓存');
+        }
+      };
+      xhr.send();
     },
 
     onUploadClicked(fileElement) {

@@ -21,16 +21,18 @@ const emit = defineEmits(["update:modelValue", "click"]);
     </Transition>
     <div v-show="modelValue" class="menu-content">
       <ul>
-        <li
-          v-for="(item, index) in items"
-          :key="index"
-          @click="
-            emit('update:modelValue', false);
-            emit('click', item.text);
-          "
-        >
-          <span v-text="item.text"></span>
-        </li>
+        <template v-for="(item, index) in items" :key="index">
+          <li v-if="item.divider" class="menu-divider"></li>
+          <li
+            v-else
+            @click="
+              emit('update:modelValue', false);
+              emit('click', item.text);
+            "
+          >
+            <span v-text="item.text"></span>
+          </li>
+        </template>
       </ul>
     </div>
   </div>
@@ -65,5 +67,17 @@ const emit = defineEmits(["update:modelValue", "click"]);
 
 .menu-content li:hover {
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.menu-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 5px 10px;
+  padding: 0 !important;
+  cursor: default;
+}
+
+.menu-divider:hover {
+  background-color: #e0e0e0 !important;
 }
 </style>
