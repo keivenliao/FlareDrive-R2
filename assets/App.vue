@@ -385,10 +385,12 @@ export default {
 
     logout() {
       if (confirm('确定要退出登录吗？')) {
-        // 清除登录 cookie
-        document.cookie = 'flaredrive_auth=; Path=/; Max-Age=0';
-        this.isAdmin = false;
-        alert('已退出登录');
+        // 保存当前路径
+        const currentPath = this.cwd;
+        if (currentPath) {
+          sessionStorage.setItem('flaredrive_return_path', currentPath);
+        }
+        window.location.href = '/api/write/logout/';
       }
     },
 

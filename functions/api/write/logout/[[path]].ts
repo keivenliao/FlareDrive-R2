@@ -1,23 +1,13 @@
-import {is_authenticated} from "@/utils/auth";
-
+// 退出登录端点：清除 cookie 并尝试清除浏览器的 Basic Auth 凭据
 export async function onRequest(context) {
-   if(!is_authenticated(context)){
-      var header = new Headers()
-      header.set("WWW-Authenticate",'Basic realm="FlareDrive 管理员登录"')
-      return new Response("请输入管理员账号密码", {
-         status: 401,
-         headers: header,
-      });
-   }
-    
-   // 登录成功，设置 cookie 并立即跳转
-   const cookieValue = 'flaredrive_auth=1; Path=/; Max-Age=604800; SameSite=Lax';
+   // 清除 cookie
+   const clearCookie = 'flaredrive_auth=; Path=/; Max-Age=0';
    
    const html = `<!DOCTYPE html>
 <html>
 <head>
    <meta charset="utf-8">
-   <title>登录成功</title>
+   <title>退出登录</title>
    <script>
       var returnPath = sessionStorage.getItem('flaredrive_return_path');
       sessionStorage.removeItem('flaredrive_return_path');
@@ -27,11 +17,15 @@ export async function onRequest(context) {
 <body></body>
 </html>`;
    
+   // 返回 401 状态码并带上 WWW-Authenticate 头，这会触发浏览器清除保存的凭据
+   // 但我们不真的要求用户登录，而是直接跳转走
    return new Response(html, {
       status: 200,
       headers: { 
          'Content-Type': 'text/html; charset=utf-8',
-         'Set-Cookie': cookieValue
+         'Set-Cookie': clearCookie,
+         // 清除浏览器保存的 Basic Auth 凭据
+         'Clear-Site-Data': '"cookies", "storage"'
       }
    });
 }
