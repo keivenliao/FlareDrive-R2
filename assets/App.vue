@@ -2,12 +2,12 @@
   <div class="main" 
       @dragenter.prevent 
       @dragover.prevent 
-      @drop.prevent="onDrop"
+      @drop.prevent="isAdmin && onDrop($event)"
       :style="{ backgroundImage: `url('${backgroundImageUrl}')` }"
   >
     <progress v-if="uploadProgress !== null" :value="uploadProgress" max="100"></progress>
-    <UploadPopup v-model="showUploadPopup" @upload="onUploadClicked" @createFolder="createFolder"></UploadPopup>
-    <button class="upload-button circle" @click="showUploadPopup = true">
+    <UploadPopup v-if="isAdmin" v-model="showUploadPopup" @upload="onUploadClicked" @createFolder="createFolder"></UploadPopup>
+    <button v-if="isAdmin" class="upload-button circle" @click="showUploadPopup = true">
       <svg t="1741764069699" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
         p-id="24280" width="24" height="24">
         <path
@@ -41,7 +41,7 @@
           </svg>
         </button>
         <Menu v-model="showMenu"
-          :items="[{ text: '按照名称排序A-Z' }, { text: '按照大小递增排序' }, { text: '按照大小递减排序' }, { text: '按照时间最新排序' }, { text: '按照时间最早排序' }, { text: '粘贴文件到网盘' }]"
+          :items="menuItems"
           @click="onMenuClick" />
       </div>
     </div>
@@ -133,19 +133,19 @@
             <span>复制链接</span>
           </button>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <button @click="moveFile(focusedItem + '_$folder$')">
             <span>移动</span>
           </button>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <button style="color: red" @click="removeFile(focusedItem + '_$folder$')">
             <span>删除</span>
           </button>
         </li>
       </ul>
       <ul v-else class="contextmenu-list">
-        <li>
+        <li v-if="isAdmin">
           <button @click="renameFile(focusedItem.key)">
             <span>重命名</span>
           </button>
@@ -155,12 +155,12 @@
             <span>下载</span>
           </a>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <button @click="clipboard = focusedItem.key">
             <span>复制</span>
           </button>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <button @click="moveFile(focusedItem.key)">
             <span>移动</span>
           </button>
@@ -170,7 +170,7 @@
             <span>复制链接</span>
           </button>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <button style="color: red" @click="removeFile(focusedItem.key)">
             <span>删除</span>
           </button>
@@ -234,6 +234,20 @@ export default {
         folders = folders.filter((folder) => folder.includes(this.search));
       }
       return folders;
+    },
+
+    menuItems() {
+      const items = [
+        { text: '按照名称排序A-Z' },
+        { text: '按照大小递增排序' },
+        { text: '按照大小递减排序' },
+        { text: '按照时间最新排序' },
+        { text: '按照时间最早排序' }
+      ];
+      if (this.isAdmin) {
+        items.push({ text: '粘贴文件到网盘' });
+      }
+      return items;
     },
   },
 
