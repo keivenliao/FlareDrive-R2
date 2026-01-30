@@ -375,12 +375,42 @@ export default {
     },
 
     login() {
-      window.location.href = '/api/write/login/';
+      // 使用隐藏 iframe 触发登录框，不离开当前页面
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.name = 'flaredrive_login_frame';
+      document.body.appendChild(iframe);
+      
+      // iframe 加载登录端点，触发浏览器登录框
+      iframe.src = '/api/write/login/?' + Date.now();
+      
+      // 定期检查是否已登录（cookie 已设置）
+      const checkInterval = setInterval(() => {
+        // 检查 cookie
+        if (document.cookie.includes('flaredrive_auth=1')) {
+          clearInterval(checkInterval);
+          clearTimeout(timeout);
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+          this.isAdmin = true;
+        }
+      }, 500);
+      
+      // 30秒超时（用户可能取消了登录）
+      const timeout = setTimeout(() => {
+        clearInterval(checkInterval);
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 30000);
     },
 
     logout() {
       if (confirm('确定要退出登录吗？')) {
-        window.location.href = '/api/write/logout/';
+        // 直接清除 cookie
+        document.cookie = 'flaredrive_auth=; Path=/; Max-Age=0';
+        this.isAdmin = false;
       }
     },
 
