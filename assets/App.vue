@@ -256,11 +256,23 @@ export default {
   methods: {
     async checkAdminStatus() {
       try {
-        const response = await fetch('/api/write/test/', {
-          method: 'GET',
-          credentials: 'include'
+        // 使用 XMLHttpRequest 检查状态，避免触发浏览器登录框
+        return new Promise((resolve) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('HEAD', '/api/write/test/', true);
+          xhr.withCredentials = true;
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+              this.isAdmin = xhr.status === 200;
+              resolve();
+            }
+          };
+          xhr.onerror = () => {
+            this.isAdmin = false;
+            resolve();
+          };
+          xhr.send();
         });
-        this.isAdmin = response.status === 200;
       } catch (error) {
         this.isAdmin = false;
       }
@@ -374,28 +386,25 @@ export default {
     },
 
     login() {
-      // 创建一个隐藏的 iframe 来触发浏览器的 Basic Auth 对话框
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = '/api/write/test/';
-      document.body.appendChild(iframe);
+      // 使用新窗口登录，避免影响主页面
+      const width = 400;
+      const height = 200;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
       
-      // 监听 iframe 加载完成
-      iframe.onload = () => {
-        // 登录成功或取消后，移除 iframe 并检查状态
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          this.checkAdminStatus();
-        }, 100);
-      };
+      const loginWindow = window.open(
+        '/api/write/test/',
+        'login',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
       
-      // 设置超时，防止 iframe 一直存在
-      setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
+      // 监听窗口关闭后检查登录状态
+      const checkClosed = setInterval(() => {
+        if (loginWindow && loginWindow.closed) {
+          clearInterval(checkClosed);
           this.checkAdminStatus();
         }
-      }, 30000); // 30秒超时
+      }, 300);
     },
 
     logout() {
