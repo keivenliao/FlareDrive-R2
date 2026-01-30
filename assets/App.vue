@@ -261,8 +261,10 @@ export default {
           credentials: 'include'
         });
         const data = await response.json();
+        console.log('Auth check result:', data);
         this.isAdmin = data.authenticated === true;
       } catch (error) {
+        console.error('Auth check error:', error);
         this.isAdmin = false;
       }
     },
