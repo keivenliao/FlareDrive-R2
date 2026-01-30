@@ -10,7 +10,10 @@ export async function onRequest(context) {
       });
    }
     
-   // 登录成功，返回一个自动跳转回主页的页面
+   // 登录成功，设置一个 cookie 标记登录状态，并返回跳转页面
+   // Cookie 有效期 7 天
+   const cookieValue = 'flaredrive_auth=1; Path=/; Max-Age=604800; SameSite=Strict';
+   
    const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -59,6 +62,9 @@ export async function onRequest(context) {
    
    return new Response(html, {
       status: 200,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      headers: { 
+         'Content-Type': 'text/html; charset=utf-8',
+         'Set-Cookie': cookieValue
+      }
    });
 }

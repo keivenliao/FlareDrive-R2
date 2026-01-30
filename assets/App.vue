@@ -261,10 +261,8 @@ export default {
           credentials: 'include'
         });
         const data = await response.json();
-        console.log('Auth check result:', data);
         this.isAdmin = data.authenticated === true;
       } catch (error) {
-        console.error('Auth check error:', error);
         this.isAdmin = false;
       }
     },
@@ -377,7 +375,6 @@ export default {
     },
 
     login() {
-      // 直接跳转到登录端点，登录成功后会自动返回
       // 保存当前路径，登录后恢复
       const currentPath = this.cwd;
       if (currentPath) {
@@ -388,8 +385,10 @@ export default {
 
     logout() {
       if (confirm('确定要退出登录吗？')) {
+        // 清除登录 cookie
+        document.cookie = 'flaredrive_auth=; Path=/; Max-Age=0';
         this.isAdmin = false;
-        alert('已退出登录状态。\n\n注意：浏览器可能仍然缓存了登录凭据，如需完全退出，请：\n1. 关闭所有浏览器窗口\n2. 或清除浏览器缓存');
+        alert('已退出登录');
       }
     },
 
