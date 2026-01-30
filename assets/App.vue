@@ -178,7 +178,7 @@
       </ul>
     </Dialog>
     <div style="flex:1"></div>
-    <Footer />
+    <Footer :isAdmin="isAdmin" />
   </div>
 </template>
 
@@ -210,6 +210,7 @@ export default {
     showUploadPopup: false,
     uploadProgress: null,
     uploadQueue: [],
+    isAdmin: false,
     //backgroundImageUrl: "/assets/bg-light.webp"
     backgroundImageUrl: "/assets/light_background-wallpaper.jpg"
   }),
@@ -237,6 +238,18 @@ export default {
   },
 
   methods: {
+    async checkAdminStatus() {
+      try {
+        const response = await fetch('/api/write/test/', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        this.isAdmin = response.status === 200;
+      } catch (error) {
+        this.isAdmin = false;
+      }
+    },
+
     copyLink(link) {
       const url = new URL(link, window.location.origin);
       navigator.clipboard.writeText(url.toString());
@@ -615,6 +628,7 @@ export default {
   },
 
   created() {
+    this.checkAdminStatus();
     window.addEventListener("popstate", (ev) => {
       const searchParams = new URL(window.location).searchParams;
       if (searchParams.get("p") !== this.cwd)

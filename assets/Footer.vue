@@ -13,7 +13,7 @@
     </div>
 
 
-    <div class="stats">
+    <div class="stats" v-if="isAdmin">
       访问次数：<span id="busuanzi_value_site_pv">😯</span>次 | 访客人数：<span id="busuanzi_value_site_uv">😯</span>人
     </div>
 
@@ -30,6 +30,12 @@
 <script>
 export default {
   name: "Footer",
+  props: {
+    isAdmin: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       homeUrl: "https://cynix.cc/",
@@ -38,10 +44,28 @@ export default {
     };
   },
   mounted() {
-    const script = document.createElement("script");
-    script.src = "https://events.vercount.one/js";
-    script.async = true;
-    document.head.appendChild(script);
+    // 只有管理员才加载统计脚本
+    if (this.isAdmin) {
+      this.loadStatsScript();
+    }
+  },
+  watch: {
+    isAdmin(newVal) {
+      // 如果管理员状态变为true，加载统计脚本
+      if (newVal) {
+        this.loadStatsScript();
+      }
+    }
+  },
+  methods: {
+    loadStatsScript() {
+      if (!document.querySelector('script[src*="vercount"]')) {
+        const script = document.createElement("script");
+        script.src = "https://events.vercount.one/js";
+        script.async = true;
+        document.head.appendChild(script);
+      }
+    }
   }
 };
 </script>
