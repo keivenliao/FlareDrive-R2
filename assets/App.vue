@@ -257,13 +257,17 @@ export default {
     async checkAdminStatus() {
       try {
         // 使用 /api/write/ 路径下的端点，这样浏览器会自动带上已保存的凭据
-        const response = await fetch('/api/write/auth/status', {
+        const response = await fetch('/api/write/auth/', {
           method: 'GET',
           credentials: 'include'
         });
+        console.log('checkAdminStatus response status:', response.status);
         const data = await response.json();
+        console.log('checkAdminStatus data:', data);
         this.isAdmin = data.authenticated === true;
+        console.log('isAdmin set to:', this.isAdmin);
       } catch (error) {
+        console.error('checkAdminStatus error:', error);
         this.isAdmin = false;
       }
     },
