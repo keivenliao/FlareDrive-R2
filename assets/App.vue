@@ -373,30 +373,29 @@ export default {
       this.applySort();
     },
 
-    async login() {
-      try {
-        // 发送一个带有错误凭据的请求来触发浏览器的登录对话框
-        const response = await fetch('/api/write/test/', {
-          method: 'GET',
-          credentials: 'include'
-        });
-        if (response.status === 401) {
-          // 使用 XMLHttpRequest 来触发浏览器原生的登录对话框
-          const xhr = new XMLHttpRequest();
-          xhr.open('GET', '/api/write/test/', true);
-          xhr.withCredentials = true;
-          xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-              this.checkAdminStatus();
-            }
-          };
-          xhr.send();
-        } else {
+    login() {
+      // 创建一个隐藏的 iframe 来触发浏览器的 Basic Auth 对话框
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = '/api/write/test/';
+      document.body.appendChild(iframe);
+      
+      // 监听 iframe 加载完成
+      iframe.onload = () => {
+        // 登录成功或取消后，移除 iframe 并检查状态
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          this.checkAdminStatus();
+        }, 100);
+      };
+      
+      // 设置超时，防止 iframe 一直存在
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
           this.checkAdminStatus();
         }
-      } catch (error) {
-        console.error('Login failed:', error);
-      }
+      }, 30000); // 30秒超时
     },
 
     logout() {
