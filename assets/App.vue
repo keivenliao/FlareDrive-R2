@@ -408,9 +408,22 @@ export default {
 
     logout() {
       if (confirm('确定要退出登录吗？')) {
-        // 直接清除 cookie
+        // 清除 cookie
         document.cookie = 'flaredrive_auth=; Path=/; Max-Age=0';
         this.isAdmin = false;
+        
+        // 用错误凭据覆盖浏览器保存的 Basic Auth 凭据
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        // 使用 URL 中嵌入错误凭据的方式清除浏览器缓存的凭据
+        iframe.src = '/api/write/logout/';
+        document.body.appendChild(iframe);
+        
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1000);
       }
     },
 
