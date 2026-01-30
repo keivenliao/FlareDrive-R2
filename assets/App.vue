@@ -256,8 +256,8 @@ export default {
   methods: {
     async checkAdminStatus() {
       try {
-        // 使用专门的状态检查端点，不会触发浏览器登录框
-        const response = await fetch('/api/auth/status', {
+        // 使用 /api/write/ 路径下的端点，这样浏览器会自动带上已保存的凭据
+        const response = await fetch('/api/write/auth/status', {
           method: 'GET',
           credentials: 'include'
         });
