@@ -256,23 +256,13 @@ export default {
   methods: {
     async checkAdminStatus() {
       try {
-        // 使用 XMLHttpRequest 检查状态，避免触发浏览器登录框
-        return new Promise((resolve) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('HEAD', '/api/write/test/', true);
-          xhr.withCredentials = true;
-          xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-              this.isAdmin = xhr.status === 200;
-              resolve();
-            }
-          };
-          xhr.onerror = () => {
-            this.isAdmin = false;
-            resolve();
-          };
-          xhr.send();
+        // 使用专门的状态检查端点，不会触发浏览器登录框
+        const response = await fetch('/api/auth/status', {
+          method: 'GET',
+          credentials: 'include'
         });
+        const data = await response.json();
+        this.isAdmin = data.authenticated === true;
       } catch (error) {
         this.isAdmin = false;
       }
@@ -386,40 +376,37 @@ export default {
     },
 
     login() {
-      // 使用新窗口登录，避免影响主页面
-      const width = 400;
-      const height = 200;
+      // 弹出新窗口进行登录
+      const width = 450;
+      const height = 300;
       const left = (screen.width - width) / 2;
       const top = (screen.height - height) / 2;
       
       const loginWindow = window.open(
         '/api/write/test/',
-        'login',
-        `width=${width},height=${height},left=${left},top=${top}`
+        'FlareDrive_Login',
+        `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no`
       );
       
       // 监听窗口关闭后检查登录状态
       const checkClosed = setInterval(() => {
-        if (loginWindow && loginWindow.closed) {
+        if (!loginWindow || loginWindow.closed) {
           clearInterval(checkClosed);
-          this.checkAdminStatus();
+          setTimeout(() => this.checkAdminStatus(), 500);
         }
-      }, 300);
+      }, 500);
     },
 
     logout() {
-      // Basic Auth 无法真正退出，只能通过发送错误凭据来清除
-      // 这里通过创建一个带有无效凭据的请求来尝试清除缓存的凭据
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', '/api/write/test/', true);
-      xhr.setRequestHeader('Authorization', 'Basic ' + btoa('logout:logout'));
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          this.isAdmin = false;
-          alert('已退出登录，如需完全退出请关闭浏览器或清除浏览器缓存');
-        }
-      };
-      xhr.send();
+      // Basic Auth 的凭据是由浏览器管理的
+      // 最可靠的方式是让用户使用错误凭据覆盖
+      // 打开一个新窗口，让用户输入错误的凭据来"覆盖"已保存的凭据
+      if (confirm('确定要退出登录吗？\n\n点击确定后会弹出登录框，请点击"取消"按钮来退出登录。')) {
+        this.isAdmin = false;
+        // 清除本地状态
+        // 告知用户如何完全退出
+        alert('已退出登录状态。\n\n注意：浏览器可能仍然缓存了登录凭据，如需完全退出，请：\n1. 关闭所有浏览器窗口\n2. 或清除浏览器缓存');
+      }
     },
 
     onUploadClicked(fileElement) {
