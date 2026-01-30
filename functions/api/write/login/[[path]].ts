@@ -10,28 +10,15 @@ export async function onRequest(context) {
       });
    }
     
-   // 登录成功，设置 cookie 并立即跳转
-   const cookieValue = 'flaredrive_auth=1; Path=/; Max-Age=604800; SameSite=Lax';
+   // 登录成功，设置 cookie 并直接重定向回主页
+   const referer = context.request.headers.get('Referer');
+   const redirectUrl = referer || '/';
    
-   const html = `<!DOCTYPE html>
-<html>
-<head>
-   <meta charset="utf-8">
-   <title>登录成功</title>
-   <script>
-      var returnPath = sessionStorage.getItem('flaredrive_return_path');
-      sessionStorage.removeItem('flaredrive_return_path');
-      window.location.replace(returnPath ? '/?p=' + encodeURIComponent(returnPath) : '/');
-   </script>
-</head>
-<body></body>
-</html>`;
-   
-   return new Response(html, {
-      status: 200,
+   return new Response(null, {
+      status: 302,
       headers: { 
-         'Content-Type': 'text/html; charset=utf-8',
-         'Set-Cookie': cookieValue
+         'Location': redirectUrl,
+         'Set-Cookie': 'flaredrive_auth=1; Path=/; Max-Age=604800; SameSite=Lax'
       }
    });
 }

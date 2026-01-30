@@ -375,21 +375,11 @@ export default {
     },
 
     login() {
-      // 保存当前路径，登录后恢复
-      const currentPath = this.cwd;
-      if (currentPath) {
-        sessionStorage.setItem('flaredrive_return_path', currentPath);
-      }
       window.location.href = '/api/write/login/';
     },
 
     logout() {
       if (confirm('确定要退出登录吗？')) {
-        // 保存当前路径
-        const currentPath = this.cwd;
-        if (currentPath) {
-          sessionStorage.setItem('flaredrive_return_path', currentPath);
-        }
         window.location.href = '/api/write/logout/';
       }
     },
