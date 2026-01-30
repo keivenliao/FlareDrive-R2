@@ -256,18 +256,13 @@ export default {
   methods: {
     async checkAdminStatus() {
       try {
-        // 使用 /api/write/ 路径下的端点，这样浏览器会自动带上已保存的凭据
         const response = await fetch('/api/write/auth/', {
           method: 'GET',
           credentials: 'include'
         });
-        console.log('checkAdminStatus response status:', response.status);
         const data = await response.json();
-        console.log('checkAdminStatus data:', data);
         this.isAdmin = data.authenticated === true;
-        console.log('isAdmin set to:', this.isAdmin);
       } catch (error) {
-        console.error('checkAdminStatus error:', error);
         this.isAdmin = false;
       }
     },
@@ -380,30 +375,13 @@ export default {
     },
 
     login() {
-      // 使用隐藏的 iframe 触发浏览器原生的 Basic Auth 登录对话框
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = '/api/write/test/?' + Date.now(); // 时间戳避免缓存
-      document.body.appendChild(iframe);
-      
-      // 定期检查登录状态，登录成功后移除 iframe
-      const checkInterval = setInterval(async () => {
-        await this.checkAdminStatus();
-        if (this.isAdmin) {
-          clearInterval(checkInterval);
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-        }
-      }, 1000);
-      
-      // 60秒超时，防止永远等待
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
-        }
-      }, 60000);
+      // 直接跳转到登录端点，登录成功后会自动返回
+      // 保存当前路径，登录后恢复
+      const currentPath = this.cwd;
+      if (currentPath) {
+        sessionStorage.setItem('flaredrive_return_path', currentPath);
+      }
+      window.location.href = '/api/write/login/';
     },
 
     logout() {
